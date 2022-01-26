@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>My blog</title>
+  
+  <subtitle>WYCの博客</subtitle>
+  <link href="https://cuberwu.github.io/atom.xml" rel="self"/>
+  
+  <link href="https://cuberwu.github.io/"/>
+  <updated>2022-01-24T14:46:05.599Z</updated>
+  <id>https://cuberwu.github.io/</id>
+  
+  <author>
+    <name>wyc</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>装机必备</title>
+    <link href="https://cuberwu.github.io/2022/01/22/zhuang-ji-bi-bei/"/>
+    <id>https://cuberwu.github.io/2022/01/22/zhuang-ji-bi-bei/</id>
+    <published>2022-01-22T08:30:26.000Z</published>
+    <updated>2022-01-24T14:46:05.599Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;本文章针对Windows系统，其他系统的以后再介绍吧。&lt;/p&gt;
+&lt;h1 id=&quot;1-浏览器&quot;&gt;&lt;a href=&quot;#1-浏览器&quot; class=&quot;headerlink&quot; title=&quot;1.浏览器&quot;&gt;&lt;/a&gt;1.浏览器&lt;/h1&gt;&lt;h3</summary>
+        
+      
+    
+    
+    
+    <category term="电脑" scheme="https://cuberwu.github.io/categories/%E7%94%B5%E8%84%91/"/>
+    
+    
+    <category term="软件" scheme="https://cuberwu.github.io/tags/%E8%BD%AF%E4%BB%B6/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>emoji语法速查表</title>
+    <link href="https://cuberwu.github.io/2022/01/20/emoji/"/>
+    <id>https://cuberwu.github.io/2022/01/20/emoji/</id>
+    <published>2022-01-20T09:28:35.000Z</published>
+    <updated>2022-01-22T03:43:40.852Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h3 id=&quot;People&quot;&gt;&lt;a href=&quot;#People&quot; class=&quot;headerlink&quot; title=&quot;People&quot;&gt;&lt;/a&gt;People&lt;/h3&gt;&lt;hr&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align=&quot;left&quot;&gt;ico&lt;/th&gt;
+&lt;th</summary>
+        
+      
+    
+    
+    
+    <category term="博文" scheme="https://cuberwu.github.io/categories/%E5%8D%9A%E6%96%87/"/>
+    
+    
+    <category term="Markdown" scheme="https://cuberwu.github.io/tags/Markdown/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>道德与法治九年级提纲</title>
+    <link href="https://cuberwu.github.io/2022/01/02/ti-gang/"/>
+    <id>https://cuberwu.github.io/2022/01/02/ti-gang/</id>
+    <published>2022-01-02T13:38:06.000Z</published>
+    <updated>2022-01-22T03:38:40.045Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;版本：4.1&lt;br&gt;&lt;a href=&quot;https://wwc.lanzouo.com/iL2hDz38gli&quot;&gt;下载链接&lt;/a&gt;  密码:4v7h&lt;br&gt;在线预览：&lt;a</summary>
+        
+      
+    
+    
+    
+    <category term="学习" scheme="https://cuberwu.github.io/categories/%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+    <category term="道德与法治" scheme="https://cuberwu.github.io/tags/%E9%81%93%E5%BE%B7%E4%B8%8E%E6%B3%95%E6%B2%BB/"/>
+    
+  </entry>
+  
+</feed>
