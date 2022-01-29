@@ -237,7 +237,7 @@ function showWinDialog(t) {
         gameInfo.value = e + " 赢了.",
         $("#win-content").html(e + " 赢了游戏，要不要再切磋？?"),
         $("#happy-outer").fadeIn(500)
-    } else t.getCurrentPlayer() instanceof HumanPlayer ? ($("#game-won h4").html("你赢了！"), $("#win-content").html("不要走！决战到天亮！"), gameInfo.value = "大佬!你赢了.", $("#sad-outer").fadeIn(500)) : ($("#game-won h4").html("你输啦！"), $("#win-content").html("啧啧，菜鸡，你输了，要再来试试吗？"), gameInfo.value = "智障胜利！.", $("#happy-outer").fadeIn(500))
+    } else t.getCurrentPlayer() instanceof HumanPlayer ? ($("#game-won h4").html("你赢了！"), $("#win-content").html("不要走！决战到天亮！"), gameInfo.value = "大佬!你赢了.", $("#sad-outer").fadeIn(500)) : ($("#game-won h4").html("你输啦！"), $("#win-content").html("啧啧，菜鸡，你输了，要再来试试吗？"), gameInfo.value = "AI胜利！.", $("#happy-outer").fadeIn(500))
 }
 Player.prototype.myTurn = function() {
     this.game.setCurrentColor(this.color),
