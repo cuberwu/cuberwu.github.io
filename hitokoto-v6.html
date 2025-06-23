@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN" style="background: transparent;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>一言 - Obsidian版</title>
+    <style>
+        :root {
+            --text-gradient-1: linear-gradient(135deg, #12c2e9 0%, #c471ed 50%, #f64f59 100%);
+            --text-gradient-2: linear-gradient(135deg, #0F3443 0%, #34E89E 100%);
+            --text-gradient-3: linear-gradient(135deg, #f93757 0%, #ff7eb3 100%);
+            --text-gradient-4: linear-gradient(135deg, #7F7FD5 0%, #91EAE4 100%);
+            --text-gradient-5: linear-gradient(135deg, #FCCF31 0%, #F55555 100%);
+            --text-gradient-6: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-gradient-7: linear-gradient(135deg, #ff75c3 0%, #ffa647 50%, #ffe83f 100%);
+            --text-gradient-8: linear-gradient(135deg, #333399 0%, #FF00CC 100%);
+            --border-radius: 8px;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .hitokoto-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 5px 10px;
+            box-sizing: border-box;
+        }
+        
+        .hitokoto-card {
+            width: 100%;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            background: transparent;
+            position: relative;
+            box-sizing: border-box;
+        }
+        
+        .hitokoto-content {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .hitokoto-text-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+            padding: 5px 20px;
+        }
+        
+        .hitokoto-text {
+            line-height: 1.5;
+            margin: 0;
+            word-break: break-word;
+            white-space: normal;
+            transition: all 0.5s ease;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: 500;
+            overflow-wrap: anywhere;
+            display: inline-block;
+        }
+        
+        .quote-start {
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 1.8rem;
+            color: rgba(0,0,0,0.2);
+            line-height: 1;
+            z-index: 1;
+            transition: color 0.5s ease;
+        }
+        
+        .quote-end {
+            position: absolute;
+            right: 0;
+            bottom: 30px; /* 增加底部距离，为来源腾出更多空间 */
+            font-size: 1.8rem;
+            color: rgba(0,0,0,0.2);
+            line-height: 1;
+            z-index: 1;
+            transition: color 0.5s ease;
+        }
+        
+        .hitokoto-from {
+            width: 100.3%;
+            font-size: 0.8rem;
+            color: rgba(0,0,0,0.6);
+            font-style: italic;
+            text-align: right;
+            margin-top: 10px; /* 增加顶部边距，使来源下移 */
+            padding-right: 5px; /* 增加右侧填充，防止内容缺失 */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            position: relative;
+            z-index: 2; /* 确保来源在括号上方 */
+        }
+        
+        .loading {
+            color: rgba(0,0,0,0.4) !important; /* 覆盖透明色设置 */
+            font-size: 1rem;
+        }
+        
+        /* 适应暗黑模式 */
+        @media (prefers-color-scheme: dark) {
+            .quote-start, .quote-end {
+                opacity: 0.7; /* 提高暗黑模式下的可见度 */
+            }
+            
+            .hitokoto-from {
+                color: rgba(255,255,255,0.6);
+            }
+            
+            .loading {
+                color: rgba(255,255,255,0.4);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hitokoto-container">
+        <div class="hitokoto-card" id="hitokoto-card">
+            <div class="quote-start">『</div>
+            <div class="quote-end">』</div>
+            <div class="hitokoto-content">
+                <div class="hitokoto-text-wrapper">
+                    <div id="hitokoto" class="hitokoto-text loading">加载中...</div>
+                </div>
+                <div id="from" class="hitokoto-from"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取URL参数
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+        
+        // 应用URL参数中的设置
+        function applySettingsFromUrl() {
+            const width = getQueryParam('width');
+            const height = getQueryParam('height');
+            
+            const container = document.querySelector('.hitokoto-container');
+            
+            if (width) {
+                container.style.width = width.includes('%') || width.includes('px') ? width : `${width}px`;
+            }
+            
+            if (height) {
+                container.style.height = height.includes('%') || height.includes('px') ? height : `${height}px`;
+            }
+            
+            // 调整布局以适应新尺寸
+            setTimeout(adjustLayout, 10);
+        }
+
+        const textGradients = [
+            'var(--text-gradient-1)',
+            'var(--text-gradient-2)',
+            'var(--text-gradient-3)',
+            'var(--text-gradient-4)',
+            'var(--text-gradient-5)',
+            'var(--text-gradient-6)',
+            'var(--text-gradient-7)',
+            'var(--text-gradient-8)'
+        ];
+        
+        function getRandomTextGradient() {
+            return textGradients[Math.floor(Math.random() * textGradients.length)];
+        }
+        
+        function adjustLayout() {
+            const textElement = document.getElementById('hitokoto');
+            const fromElement = document.getElementById('from');
+            
+            // 确保来源信息不会超出
+            if (fromElement.scrollWidth > fromElement.offsetWidth) {
+                fromElement.style.whiteSpace = 'normal';
+                fromElement.style.textOverflow = 'clip';
+            }
+            
+            // 适应不同尺寸设备
+            const containerWidth = document.querySelector('.hitokoto-container').offsetWidth;
+            
+            if (containerWidth < 300) {
+                textElement.style.fontSize = '0.9rem';
+                fromElement.style.fontSize = '0.7rem';
+            } else if (containerWidth < 500) {
+                textElement.style.fontSize = '1rem';
+                fromElement.style.fontSize = '0.8rem';
+            } else {
+                textElement.style.fontSize = '1.1rem';
+                fromElement.style.fontSize = '0.8rem';
+            }
+        }
+        
+        function fetchHitokoto() {
+            const text = document.getElementById('hitokoto');
+            const from = document.getElementById('from');
+            const quoteStart = document.querySelector('.quote-start');
+            const quoteEnd = document.querySelector('.quote-end');
+            
+            text.textContent = "加载中...";
+            text.className = "hitokoto-text loading";
+            from.textContent = "";
+            
+            fetch('https://international.v1.hitokoto.cn/')
+                .then(response => response.json())
+                .then(data => {
+                    text.textContent = data.hitokoto;
+                    text.className = "hitokoto-text";
+                    
+                    // 获取随机渐变色索引
+                    const gradientIndex = Math.floor(Math.random() * 8); // 更新为8种渐变色
+                    const gradientVar = textGradients[gradientIndex < textGradients.length ? gradientIndex : 0];
+                    
+                    // 使用内联样式直接设置渐变色
+                    let gradientCSS;
+                    let startColor, endColor;
+                    
+                    switch(gradientIndex) {
+                        case 0:
+                            gradientCSS = 'linear-gradient(135deg, #12c2e9 0%, #c471ed 50%, #f64f59 100%)';
+                            startColor = '#12c2e9';
+                            endColor = '#f64f59';
+                            break;
+                        case 1:
+                            gradientCSS = 'linear-gradient(135deg, #0F3443 0%, #34E89E 100%)';
+                            startColor = '#0F3443';
+                            endColor = '#34E89E';
+                            break;
+                        case 2:
+                            gradientCSS = 'linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%)';
+                            startColor = '#ff758c';
+                            endColor = '#ff7eb3';
+                            break;
+                        case 3:
+                            gradientCSS = 'linear-gradient(135deg, #7F7FD5 0%, #91EAE4 100%)';
+                            startColor = '#7F7FD5';
+                            endColor = '#91EAE4';
+                            break;
+                        case 4:
+                            gradientCSS = 'linear-gradient(135deg, #FCCF31 0%, #F55555 100%)';
+                            startColor = '#FCCF31';
+                            endColor = '#F55555';
+                            break;
+                        case 5:
+                            gradientCSS = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                            startColor = '#667eea';
+                            endColor = '#764ba2';
+                            break;
+                        case 6:
+                            gradientCSS = 'linear-gradient(135deg, #ff75c3 0%, #ffa647 50%, #ffe83f 100%)';
+                            startColor = '#ff75c3';
+                            endColor = '#ffe83f';
+                            break;
+                        case 7:
+                            gradientCSS = 'linear-gradient(135deg, #333399 0%, #FF00CC 100%)';
+                            startColor = '#333399';
+                            endColor = '#FF00CC';
+                            break;
+                    }
+                    
+                    // 直接应用内联样式确保兼容性
+                    text.style.backgroundImage = gradientCSS;
+                    text.style.webkitBackgroundClip = 'text';
+                    text.style.backgroundClip = 'text';
+                    text.style.color = 'transparent';
+                    
+                    // 应用颜色到括号 - 使颜色更饱和
+                    quoteStart.style.color = startColor;
+                    quoteEnd.style.color = endColor;
+                    
+                    // 添加文本阴影增强渐变效果
+                    text.style.textShadow = '0 0 1px rgba(0,0,0,0.05)';
+                    
+                    from.textContent = `—— ${data.from}${data.from_who ? `「${data.from_who}」` : ''}`;
+                    
+                    // 调整布局
+                    setTimeout(() => {
+                        adjustLayout();
+                    }, 10);
+                })
+                .catch(error => {
+                    text.textContent = "获取失败";
+                    text.className = "hitokoto-text";
+                    console.error('Error:', error);
+                });
+        }
+        
+        // 初始加载
+        fetchHitokoto();
+        
+        // 应用URL参数中的设置
+        applySettingsFromUrl();
+        
+        // 监听窗口大小变化
+        window.addEventListener('resize', adjustLayout);
+        
+        // 每1分钟自动刷新
+        setInterval(fetchHitokoto, 60000);
+    </script>
+    <!--
+    Obsidian使用说明:
+    1. 将此文件放在Obsidian仓库的任意位置
+    2. 在Markdown文件中使用以下代码引入:
+       ```html
+       <iframe src="hitokoto-obsidian.html" frameborder="0" style="width:100%; height:80px; border:none;"></iframe>
+       ```
+    3. 自定义高度:
+       ```html
+       <iframe src="hitokoto-obsidian.html?height=60px" frameborder="0" style="width:100%; height:60px; border:none;"></iframe>
+       ```
+    -->
+</body>
+</html> 
