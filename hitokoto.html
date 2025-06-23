@@ -118,8 +118,9 @@
             font-size: 1.8rem;
             color: rgba(0,0,0,0.2);
             line-height: 1;
-            z-index: 1;
+            z-index: 3; /* 提高z-index确保在所有元素上方 */
             transition: color 0.5s ease;
+            pointer-events: none; /* 防止鼠标事件影响 */
         }
         
         .hitokoto-from {
@@ -172,6 +173,18 @@
                 background-position: 200% 50%;
             }
         }
+        
+        /* Obsidian兼容性修复 */
+        .obsidian-compat .quote-end {
+            position: fixed !important;
+            z-index: 9999 !important;
+        }
+        
+        @media print {
+            body, html, .hitokoto-container, .hitokoto-card, .hitokoto-card-inner {
+                background: transparent !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -179,7 +192,7 @@
         <div class="hitokoto-card" id="hitokoto-card">
             <div class="hitokoto-card-inner">
                 <div class="quote-start">『</div>
-                <div class="quote-end">』</div>
+                <!-- 右括号将通过JavaScript动态添加，解决Obsidian中显示问题 -->
                 <div class="hitokoto-content">
                     <div class="hitokoto-text-wrapper">
                         <div id="hitokoto" class="hitokoto-text loading">加载中...</div>
@@ -188,6 +201,7 @@
                         <div id="from" class="hitokoto-from"></div>
                     </div>
                 </div>
+                <div class="quote-end">』</div>
             </div>
         </div>
     </div>
@@ -237,10 +251,15 @@
             const textElement = document.getElementById('hitokoto');
             const fromElement = document.getElementById('from');
             const quoteEnd = document.querySelector('.quote-end');
+            const hitokotoContainer = document.querySelector('.hitokoto-container');
+            
+            // 确保右括号可见
+            // 将右括号置于文本容器之外，避免被裁剪
+            document.querySelector('.hitokoto-card-inner').appendChild(quoteEnd);
             
             // 根据设备尺寸调整布局
-            const containerWidth = document.querySelector('.hitokoto-container').offsetWidth;
-            const containerHeight = document.querySelector('.hitokoto-container').offsetHeight;
+            const containerWidth = hitokotoContainer.offsetWidth;
+            const containerHeight = hitokotoContainer.offsetHeight;
             
             // 调整来源显示
             if (fromElement.scrollWidth > (containerWidth - 40)) {
@@ -365,11 +384,12 @@
                     
                     from.textContent = `—— ${data.from}${data.from_who ? `「${data.from_who}」` : ''}`;
                     
-
                     
                     // 调整布局
                     setTimeout(() => {
                         adjustLayout();
+                        // 重新检查Obsidian右括号问题
+                        fixObsidianBracketIssue();
                     }, 10);
                 })
                 .catch(error => {
@@ -387,6 +407,60 @@
         
         // 监听窗口大小变化
         window.addEventListener('resize', adjustLayout);
+        
+        // 解决Obsidian中右括号显示问题
+        function fixObsidianBracketIssue() {
+            // 检查是否在iframe中运行
+            const isInIframe = window !== window.top;
+            
+            if (isInIframe) {
+                // 可能是在Obsidian中，将body标记为obsidian-compat
+                document.body.classList.add('obsidian-compat');
+                
+                // 创建新的右引号元素，替换原来的
+                const originalQuoteEnd = document.querySelector('.quote-end');
+                const newQuoteEnd = document.createElement('div');
+                newQuoteEnd.className = 'quote-end';
+                newQuoteEnd.textContent = '』';
+                newQuoteEnd.style.position = 'fixed';
+                newQuoteEnd.style.zIndex = '9999';
+                
+                // 保留原来的颜色
+                newQuoteEnd.style.color = originalQuoteEnd.style.color || 'rgba(0,0,0,0.2)';
+                
+                // 添加到body并计算位置
+                document.body.appendChild(newQuoteEnd);
+                
+                // 获取卡片位置
+                const card = document.querySelector('.hitokoto-card');
+                const cardRect = card.getBoundingClientRect();
+                
+                // 放置在卡片右下角
+                newQuoteEnd.style.left = (cardRect.right - 30) + 'px';
+                newQuoteEnd.style.top = (cardRect.bottom - 40) + 'px';
+                
+                // 移除原始引号
+                if (originalQuoteEnd.parentNode) {
+                    originalQuoteEnd.parentNode.removeChild(originalQuoteEnd);
+                }
+                
+                // 监听resize事件重新定位
+                window.addEventListener('resize', function() {
+                    const updatedCardRect = card.getBoundingClientRect();
+                    newQuoteEnd.style.left = (updatedCardRect.right - 30) + 'px';
+                    newQuoteEnd.style.top = (updatedCardRect.bottom - 40) + 'px';
+                });
+            }
+        }
+        
+        // 页面加载完成后处理Obsidian问题
+        window.addEventListener('load', function() {
+            adjustLayout();
+            fixObsidianBracketIssue();
+            
+            // 每次获取新一言后也重新处理
+            fetchHitokoto();
+        });
         
         // 每1分钟自动刷新
         setInterval(fetchHitokoto, 60000);
