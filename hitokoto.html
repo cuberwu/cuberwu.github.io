@@ -64,7 +64,7 @@
             width: 100%;
             height: 100%;
             border-radius: calc(var(--border-radius) - 3px);
-            padding: 10px 20px;
+            padding: 10px 20px 20px 20px; /* 增加底部内边距 */
             box-sizing: border-box;
         }
         
@@ -73,6 +73,7 @@
             width: 100%;
             display: flex;
             flex-direction: column;
+            min-height: 80px; /* 确保有足够的高度显示来源 */
         }
         
         .hitokoto-text-wrapper {
@@ -113,7 +114,7 @@
         .quote-end {
             position: absolute;
             right: 0;
-            bottom: 30px; /* 增加底部距离，为来源腾出更多空间 */
+            bottom: 15px; /* 降低右下引号位置 */
             font-size: 1.8rem;
             color: rgba(0,0,0,0.2);
             line-height: 1;
@@ -131,8 +132,8 @@
             margin-top: 10px; /* 增加顶部边距，使来源下移 */
             padding: 3px 10px; /* 增加内边距 */
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            overflow: visible; /* 改为可见溢出 */
+            text-overflow: clip;
             position: relative;
             z-index: 2; /* 确保来源在括号上方 */
             min-height: 16px; /* 减小最小高度以节省空间 */
@@ -140,6 +141,7 @@
             float: right; /* 靠右对齐 */
             clear: both; /* 确保不会与其他元素重叠 */
             margin-right: 10px; /* 右侧边距 */
+            line-height: 1.3; /* 减小行高 */
         }
         
         .loading {
@@ -182,7 +184,9 @@
                     <div class="hitokoto-text-wrapper">
                         <div id="hitokoto" class="hitokoto-text loading">加载中...</div>
                     </div>
-                    <div id="from" class="hitokoto-from"></div>
+                    <div style="width:100%; overflow:visible; position:relative; min-height:25px;">
+                        <div id="from" class="hitokoto-from"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -238,12 +242,11 @@
             const containerWidth = document.querySelector('.hitokoto-container').offsetWidth;
             const containerHeight = document.querySelector('.hitokoto-container').offsetHeight;
             
-            // 确保来源信息不会超出
+            // 调整来源显示
             if (fromElement.scrollWidth > (containerWidth - 40)) {
                 fromElement.style.whiteSpace = 'normal';
-                fromElement.style.textOverflow = 'ellipsis';
-                fromElement.style.maxHeight = '2.5em'; /* 限制最大高度为两行半 */
-                fromElement.style.overflow = 'hidden';
+                fromElement.style.height = 'auto'; // 自动高度
+                fromElement.style.maxHeight = 'none'; // 移除最大高度限制
             } else {
                 fromElement.style.whiteSpace = 'nowrap';
             }
@@ -253,28 +256,30 @@
                 textElement.style.fontSize = '0.85rem';
                 fromElement.style.fontSize = '0.65rem';
                 // 为小屏幕调整布局
-                quoteEnd.style.bottom = '20px';
+                quoteEnd.style.bottom = '15px'; // 减小底部距离
                 fromElement.style.padding = '2px 6px';
-                fromElement.style.marginTop = '6px';
+                fromElement.style.marginTop = '3px'; // 减小顶部边距
             } else if (containerWidth < 500) {
                 textElement.style.fontSize = '1rem';
                 fromElement.style.fontSize = '0.75rem';
-                quoteEnd.style.bottom = '25px';
+                quoteEnd.style.bottom = '20px';
                 fromElement.style.padding = '2px 8px';
-                fromElement.style.marginTop = '8px';
+                fromElement.style.marginTop = '5px';
             } else {
                 textElement.style.fontSize = '1.1rem';
                 fromElement.style.fontSize = '0.8rem';
-                quoteEnd.style.bottom = '30px';
+                quoteEnd.style.bottom = '25px';
                 fromElement.style.padding = '3px 10px';
-                fromElement.style.marginTop = '10px';
+                fromElement.style.marginTop = '8px';
             }
             
             // 如果容器高度很小，进一步优化布局
             if (containerHeight < 100) {
                 textElement.style.lineHeight = '1.3';
-                fromElement.style.marginTop = '3px';
-                quoteEnd.style.bottom = '15px';
+                fromElement.style.marginTop = '2px'; // 更小的顶部边距
+                quoteEnd.style.bottom = '10px'; // 更小的底部距离
+                // 确保来源文本显示完整
+                document.querySelector('.hitokoto-content').style.paddingBottom = '20px';
             }
         }
         
@@ -391,15 +396,15 @@
     1. 将此文件放在Obsidian仓库的任意位置
     2. 在Markdown文件中使用以下代码引入:
        ```html
-       <iframe src="hitokoto-来源无边框.html" frameborder="0" style="width:100%; height:80px; border:none;"></iframe>
+       <iframe src="hitokoto-来源无边框.html" frameborder="0" style="width:100%; height:120px; border:none;"></iframe>
        ```
     3. 自定义高度和宽度:
        ```html
-       <iframe src="hitokoto-来源无边框.html?height=60px&width=100%" frameborder="0" style="width:100%; height:60px; border:none;"></iframe>
+       <iframe src="hitokoto-来源无边框.html?height=120px&width=100%" frameborder="0" style="width:100%; height:120px; border:none;"></iframe>
        ```
     4. 对于更小的展示区域，建议设置更大的高度以确保来源文本显示:
        ```html
-       <iframe src="hitokoto-来源无边框.html" frameborder="0" style="width:100%; height:100px; border:none;"></iframe>
+       <iframe src="hitokoto-来源无边框.html" frameborder="0" style="width:100%; height:140px; border:none;"></iframe>
        ```
     -->
 </body>
