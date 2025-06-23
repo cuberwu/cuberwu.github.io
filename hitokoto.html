@@ -9,13 +9,16 @@
         :root {
             --text-gradient-1: linear-gradient(135deg, #12c2e9 0%, #c471ed 50%, #f64f59 100%);
             --text-gradient-2: linear-gradient(135deg, #0F3443 0%, #34E89E 100%);
-            --text-gradient-3: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+            --text-gradient-3: linear-gradient(135deg, #f8163c 0%, #ff7eb3 100%);
             --text-gradient-4: linear-gradient(135deg, #7F7FD5 0%, #91EAE4 100%);
             --text-gradient-5: linear-gradient(135deg, #FCCF31 0%, #F55555 100%);
             --text-gradient-6: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --text-gradient-7: linear-gradient(135deg, #ff75c3 0%, #ffa647 50%, #ffe83f 100%);
             --text-gradient-8: linear-gradient(135deg, #333399 0%, #FF00CC 100%);
             --border-radius: 8px;
+            --rainbow-border: linear-gradient(90deg, 
+                #ff0000, #ff7f00, #ffff00, #00ff00, 
+                #0000ff, #4b0082, #9400d3, #ff0000);
         }
         
         body {
@@ -46,6 +49,22 @@
             border-radius: var(--border-radius);
             background: transparent;
             position: relative;
+            box-sizing: border-box;
+            /* 添加渐变彩色边框 */
+            background: linear-gradient(var(--border-radius), transparent, transparent),
+                        var(--rainbow-border);
+            background-size: 200% 200%;
+            animation: rotate-border 4s linear infinite;
+            /* 模拟内部透明 */
+            padding: 3px; /* 为边框留出空间 */
+        }
+        
+        .hitokoto-card-inner {
+            background: transparent;
+            width: 100%;
+            height: 100%;
+            border-radius: calc(var(--border-radius) - 3px);
+            padding: 10px 20px;
             box-sizing: border-box;
         }
         
@@ -103,18 +122,24 @@
         }
         
         .hitokoto-from {
-            width: 100.3%;
+            width: auto; /* 更改为自适应宽度 */
+            max-width: 100%; /* 最大宽度限制 */
             font-size: 0.8rem;
             color: rgba(0,0,0,0.6);
             font-style: italic;
             text-align: right;
             margin-top: 10px; /* 增加顶部边距，使来源下移 */
-            padding-right: 5px; /* 增加右侧填充，防止内容缺失 */
+            padding: 3px 10px; /* 增加内边距 */
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             position: relative;
             z-index: 2; /* 确保来源在括号上方 */
+            min-height: 16px; /* 减小最小高度以节省空间 */
+            display: inline-block; /* 使宽度自适应内容 */
+            float: right; /* 靠右对齐 */
+            clear: both; /* 确保不会与其他元素重叠 */
+            margin-right: 10px; /* 右侧边距 */
         }
         
         .loading {
@@ -136,18 +161,29 @@
                 color: rgba(255,255,255,0.4);
             }
         }
+        
+        @keyframes rotate-border {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 200% 50%;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="hitokoto-container">
         <div class="hitokoto-card" id="hitokoto-card">
-            <div class="quote-start">『</div>
-            <div class="quote-end">』</div>
-            <div class="hitokoto-content">
-                <div class="hitokoto-text-wrapper">
-                    <div id="hitokoto" class="hitokoto-text loading">加载中...</div>
+            <div class="hitokoto-card-inner">
+                <div class="quote-start">『</div>
+                <div class="quote-end">』</div>
+                <div class="hitokoto-content">
+                    <div class="hitokoto-text-wrapper">
+                        <div id="hitokoto" class="hitokoto-text loading">加载中...</div>
+                    </div>
+                    <div id="from" class="hitokoto-from"></div>
                 </div>
-                <div id="from" class="hitokoto-from"></div>
             </div>
         </div>
     </div>
@@ -196,25 +232,49 @@
         function adjustLayout() {
             const textElement = document.getElementById('hitokoto');
             const fromElement = document.getElementById('from');
+            const quoteEnd = document.querySelector('.quote-end');
+            
+            // 根据设备尺寸调整布局
+            const containerWidth = document.querySelector('.hitokoto-container').offsetWidth;
+            const containerHeight = document.querySelector('.hitokoto-container').offsetHeight;
             
             // 确保来源信息不会超出
-            if (fromElement.scrollWidth > fromElement.offsetWidth) {
+            if (fromElement.scrollWidth > (containerWidth - 40)) {
                 fromElement.style.whiteSpace = 'normal';
-                fromElement.style.textOverflow = 'clip';
+                fromElement.style.textOverflow = 'ellipsis';
+                fromElement.style.maxHeight = '2.5em'; /* 限制最大高度为两行半 */
+                fromElement.style.overflow = 'hidden';
+            } else {
+                fromElement.style.whiteSpace = 'nowrap';
             }
             
             // 适应不同尺寸设备
-            const containerWidth = document.querySelector('.hitokoto-container').offsetWidth;
-            
             if (containerWidth < 300) {
-                textElement.style.fontSize = '0.9rem';
-                fromElement.style.fontSize = '0.7rem';
+                textElement.style.fontSize = '0.85rem';
+                fromElement.style.fontSize = '0.65rem';
+                // 为小屏幕调整布局
+                quoteEnd.style.bottom = '20px';
+                fromElement.style.padding = '2px 6px';
+                fromElement.style.marginTop = '6px';
             } else if (containerWidth < 500) {
                 textElement.style.fontSize = '1rem';
-                fromElement.style.fontSize = '0.8rem';
+                fromElement.style.fontSize = '0.75rem';
+                quoteEnd.style.bottom = '25px';
+                fromElement.style.padding = '2px 8px';
+                fromElement.style.marginTop = '8px';
             } else {
                 textElement.style.fontSize = '1.1rem';
                 fromElement.style.fontSize = '0.8rem';
+                quoteEnd.style.bottom = '30px';
+                fromElement.style.padding = '3px 10px';
+                fromElement.style.marginTop = '10px';
+            }
+            
+            // 如果容器高度很小，进一步优化布局
+            if (containerHeight < 100) {
+                textElement.style.lineHeight = '1.3';
+                fromElement.style.marginTop = '3px';
+                quoteEnd.style.bottom = '15px';
             }
         }
         
@@ -300,6 +360,8 @@
                     
                     from.textContent = `—— ${data.from}${data.from_who ? `「${data.from_who}」` : ''}`;
                     
+
+                    
                     // 调整布局
                     setTimeout(() => {
                         adjustLayout();
@@ -329,11 +391,15 @@
     1. 将此文件放在Obsidian仓库的任意位置
     2. 在Markdown文件中使用以下代码引入:
        ```html
-       <iframe src="hitokoto-obsidian.html" frameborder="0" style="width:100%; height:80px; border:none;"></iframe>
+       <iframe src="hitokoto-来源无边框.html" frameborder="0" style="width:100%; height:80px; border:none;"></iframe>
        ```
-    3. 自定义高度:
+    3. 自定义高度和宽度:
        ```html
-       <iframe src="hitokoto-obsidian.html?height=60px" frameborder="0" style="width:100%; height:60px; border:none;"></iframe>
+       <iframe src="hitokoto-来源无边框.html?height=60px&width=100%" frameborder="0" style="width:100%; height:60px; border:none;"></iframe>
+       ```
+    4. 对于更小的展示区域，建议设置更大的高度以确保来源文本显示:
+       ```html
+       <iframe src="hitokoto-来源无边框.html" frameborder="0" style="width:100%; height:100px; border:none;"></iframe>
        ```
     -->
 </body>
