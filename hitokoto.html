@@ -26,13 +26,11 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            height: 100vh;
-            overflow: hidden;
         }
         
         .hitokoto-container {
             width: 540px;
-            height: 100%;
+            height: 340px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -41,7 +39,7 @@
         
         .hitokoto-card {
             width: 100%;
-            height: 62%;
+            height: 61%;
             padding: 30px 40px;
             border-radius: var(--border-radius);
             background: var(--gradient-1);
@@ -78,7 +76,7 @@
             margin: 0;
             word-break: break-word;
             white-space: normal;
-            transition: all 0.5s ease;
+            transition: all 0.3s ease;
             width: 100%;
             font-size: 1.7rem;
             font-weight: 500;
@@ -160,47 +158,6 @@
             color: rgba(0,0,0,0.4);
             font-size: 1.7rem;
         }
-        
-        /* 响应式设计 */
-        @media (max-width: 600px) {
-            .hitokoto-container {
-                width: 90%;
-                margin: 10px;
-            }
-            
-            .hitokoto-card {
-                padding: 20px 25px;
-            }
-            
-            .hitokoto-text-wrapper {
-                left: 25px;
-                right: 25px;
-                top: 30px;
-                bottom: 60px;
-            }
-            
-            .hitokoto-text {
-                font-size: 1.5rem;
-            }
-            
-            .quote-start {
-                left: -10px;
-                top: 20px;
-                font-size: 3rem;
-            }
-            
-            .quote-end {
-                right: -13px;
-                bottom: 18px;
-                font-size: 3rem;
-            }
-        }
-        
-        @media (max-height: 500px) {
-            .hitokoto-card {
-                height: 80%;
-            }
-        }
     </style>
 </head>
 <body>
@@ -238,36 +195,36 @@
             return gradients[Math.floor(Math.random() * gradients.length)];
         }
         
-        function adjustLayout() {
+        function adjustTextSize() {
             const textElement = document.getElementById('hitokoto');
+            const wrapper = document.querySelector('.hitokoto-text-wrapper');
             const fromElement = document.getElementById('from');
-            const textWrapper = document.querySelector('.hitokoto-text-wrapper');
             
             // 重置文字大小和行数限制
             textElement.style.fontSize = '1.7rem';
             textElement.style.webkitLineClamp = '4';
             
+            // 检查文本是否溢出
+            const isOverflowing = textElement.scrollHeight > textElement.clientHeight;
+            
+            if (isOverflowing) {
+                // 逐步减小字体大小直到内容适合
+                let fontSize = 1.7; // rem
+                while (textElement.scrollHeight > textElement.clientHeight && fontSize > 1.0) {
+                    fontSize -= 0.1;
+                    textElement.style.fontSize = `${fontSize}rem`;
+                }
+                
+                // 如果字体减小到最小值仍然溢出，增加显示行数
+                if (textElement.scrollHeight > textElement.clientHeight) {
+                    textElement.style.webkitLineClamp = '6';
+                }
+            }
+            
             // 确保来源信息不会超出
             if (fromElement.scrollWidth > fromElement.offsetWidth) {
                 fromElement.style.whiteSpace = 'normal';
                 fromElement.style.textOverflow = 'clip';
-            }
-            
-            // 自动调整字体大小以确保文本完整显示
-            const maxHeight = textWrapper.clientHeight;
-            let fontSize = 1.7;
-            const minFontSize = 0.8;
-            
-            // 如果文本溢出容器
-            while (textElement.scrollHeight > maxHeight && fontSize > minFontSize) {
-                fontSize -= 0.1;
-                textElement.style.fontSize = `${fontSize}rem`;
-            }
-            
-            // 如果文本很短，可以适当增大字体，但在62%高度下限制最大字体
-            if (textElement.scrollHeight < maxHeight * 0.6 && fontSize === 1.7) {
-                fontSize = Math.min(2.0, 1.7 * (maxHeight / textElement.scrollHeight * 0.6));
-                textElement.style.fontSize = `${fontSize}rem`;
             }
         }
         
@@ -297,9 +254,9 @@
                     text.className = "hitokoto-text";
                     from.textContent = `—— ${data.from}${data.from_who ? ` · ${data.from_who}` : ''}`;
                     
-                    // 调整布局
+                    // 调整布局和字体大小
                     setTimeout(() => {
-                        adjustLayout();
+                        adjustTextSize();
                     }, 10);
                 })
                 .catch(error => {
@@ -311,9 +268,6 @@
         
         // 初始加载
         fetchHitokoto();
-        
-        // 监听窗口大小变化
-        window.addEventListener('resize', adjustLayout);
         
         // 每5分钟自动刷新
         setInterval(fetchHitokoto, 300000);
