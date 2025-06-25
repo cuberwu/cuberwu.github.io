@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&display=swap" rel="stylesheet">
+
+    <title>Time Left Combined</title>
+    <style>
+        body{
+            text-align: center;
+            font-family: monospace;
+            background-color: transparent;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+        .counter-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .counter {
+            display: flex;
+            gap: 10px;
+        }
+        .label {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .box{
+            display: inline-block;
+            padding: 10px;
+            border-radius: 5px;
+            min-width: 40px;
+            height: 40px;
+            border: 3px solid #000000;
+            border-radius: 5px;
+            box-shadow: 2px 2px 1px 0px #000000;
+        }
+      
+        h2{
+            display: inline-block;
+            margin-right: 10px;
+            margin-block-start: 5px;
+        }
+        .small{
+            font-size: 15px;
+            font-weight: lighter;
+        }
+
+        .today-highlight {
+            background-color: #f3fff3;
+        }
+        .week-highlight {
+            background-color: #f3f3ff;
+        }
+        .month-highlight {
+            background-color: #fff3f3;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <!-- Today Section -->
+        <div class="counter-section">
+            <div class="counter" id="today-counter">
+                <h2 class="box today-highlight" id="today-hours"></h2>
+                <h2 class="box" id="today-minutes"></h2>
+                <h2 class="box" id="today-seconds"></h2>
+            </div>
+            <div class="label">Left in Today</div>
+        </div>
+
+        <!-- Week Section -->
+        <div class="counter-section">
+            <div class="counter" id="week-counter">
+                <h2 class="box week-highlight" id="week-days"></h2>
+            </div>
+            <div class="label">Left in This Week</div>
+        </div>
+
+        <!-- Month Section -->
+        <div class="counter-section">
+            <div class="counter" id="month-counter">
+                <h2 class="box month-highlight" id="month-days"></h2>
+            </div>
+            <div class="label">Left in This Month</div>
+        </div>
+    </div>
+
+<script>
+    function initCounters() {
+        // Today counter elements
+        today_hours = document.getElementById("today-hours");
+        today_minutes = document.getElementById("today-minutes");
+        today_seconds = document.getElementById("today-seconds");
+        
+        // Week counter elements
+        week_days = document.getElementById("week-days");
+        
+        // Month counter elements
+        month_days = document.getElementById("month-days");
+    }
+    
+    function updateCounters() {
+        const now = new Date();
+        
+        // Today calculations
+        const todayHours = 23 - now.getHours();
+        const todayMinutes = 59 - now.getMinutes();
+        const todaySeconds = 59 - now.getSeconds();
+        
+        // Week calculations (assuming Sunday is the first day of the week)
+        const daysUntilEndOfWeek = 6 - now.getDay(); // 0 is Sunday, 6 is Saturday
+        
+        // Month calculations
+        const daysInThisMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+        const daysUntilEndOfMonth = daysInThisMonth - now.getDate();
+        
+        // Update today counter
+        today_hours.innerHTML = todayHours + "<br> <span class=\"small\">hours</span>";
+        today_minutes.innerHTML = todayMinutes + "<br> <span class=\"small\">mins</span>";
+        today_seconds.innerHTML = todaySeconds + "<br> <span class=\"small\">secs</span>";
+        
+        // Update week counter
+        week_days.innerHTML = daysUntilEndOfWeek + "<br> <span class=\"small\">days</span>";
+        
+        // Update month counter
+        month_days.innerHTML = daysUntilEndOfMonth + "<br> <span class=\"small\">days</span>";
+    }
+
+    // Initialize and start updating
+    initCounters();
+    updateCounters(); // Initial update
+    setInterval(updateCounters, 1000); // Update every second
+</script>
+</body>
+</html>
